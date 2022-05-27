@@ -6,9 +6,9 @@
 
 A Helm chart for Kubernetes
 
-There are 2 notable parameters to set **s3** and **volumes*, the first one will be translated into
+There are 2 notable parameters to set **s3** and **volumes**, the first one will be translated into
 environment variables that will cause the packaged `s3utils.py` to by default interact with the
-S3 bucket that it defined by the __s3__ variables.  The volumes array lis a list of PVC that will
+S3 bucket that is defined by the *s3* variables.  The volumes array lis a list of PVC names that will
 be mounted on `/data`.
 
 ## Values
