@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dev-shell.fullname" . }}
+  labels:
+    {{- include "dev-shell.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "dev-shell.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "dev-shell.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "dev-shell.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          args: ['infinity']
+          command: ['/usr/bin/sleep']
+          env:
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: s3_access_key
+                  name: {{ include "dev-shell.fullname" . }}-secrets
+            - name: S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  key: s3_bucket
+                  name: {{ template "dev-shell.fullname" . }}-secrets
+            - name: S3_HOST_URL
+              valueFrom:
+                secretKeyRef:
+                  key: s3_host
+                  name: {{ template "dev-shell.fullname" . }}-secrets
+            - name: S3_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: s3_secret_key
+                  name: {{ template "dev-shell.fullname" . }}-secrets
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "dev-shell.fullname" .}}-local
+              mountPath: /local
+          {{- range .Values.volumes }}
+            - name: {{ . }}
+              mountPath: /data/{{ . }}
+          {{- end }}
+      volumes:
+        - name: {{ include "dev-shell.fullname" .}}-local
+          persistentVolumeClaim:
+            claimName: {{ include "dev-shell.fullname" .}}-local
+      {{- range .Values.volumes }}
+        - name: {{ . }}
+          persistentVolumeClaim:
+            claimName: {{ . }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

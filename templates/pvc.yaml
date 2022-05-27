@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "dev-shell.fullname" .}}-local
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+     requests:
+       storage: {{ .Values.local.size | default "10G" }}
