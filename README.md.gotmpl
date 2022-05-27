@@ -1,0 +1,23 @@
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+## Chart Description
+
+{{ template "chart.description" . }}
+
+There are 2 notable parameters to set **s3** and **volumes*, the first one will be translated into
+environment variables that will cause the packaged `s3utils.py` to by default interact with the
+S3 bucket that it defined by the __s3__ variables.  The volumes array lis a list of PVC that will
+be mounted on `/data`.
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
