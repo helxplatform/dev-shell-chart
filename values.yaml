@@ -5,9 +5,9 @@
 replicaCount: 1
 
 image:
-  repository: helxplatform/dev-shell
+  repository: containers.renci.org/helxplatform/dev-shell
   pullPolicy: Always
-  tag:
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ""
