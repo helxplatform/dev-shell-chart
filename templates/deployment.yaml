@@ -66,22 +66,36 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.volumes }}
           volumeMounts:
             - name: {{ include "dev-shell.fullname" .}}-local
               mountPath: /local
-          {{- range .Values.volumes }}
+          {{- range .Values.volumes.pvc }}
             - name: {{ . }}
-              mountPath: /data/{{ . }}
+              mountPath: /pvc-data/{{ . }}
+          {{- end }}
+          {{- range .Values.volumes.nfs }}
+            - name: {{ .name }}
+              mountPath: /nfs-data/{{ .name }}
+          {{- end }}
           {{- end }}
       volumes:
         - name: {{ include "dev-shell.fullname" .}}-local
           persistentVolumeClaim:
             claimName: {{ include "dev-shell.fullname" .}}-local
-      {{- range .Values.volumes }}
+        {{- if .Values.volumes }}
+        {{- range .Values.volumes.pvc }}
         - name: {{ . }}
           persistentVolumeClaim:
             claimName: {{ . }}
-      {{- end }}
+        {{- end }}
+        {{- range .Values.volumes.nfs }}
+        - name: {{ .name }}
+          nfs:
+            server: {{ .server }}
+            path: {{ .path }}  
+        {{- end }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
